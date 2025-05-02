@@ -59,21 +59,3 @@ graph LR
     Acc6 --> LocalProc
     OutputHook --> NIC --> ExtNet
 ```
-
-**Explanation of the Diagram:**
-
-1.  **Packet Arrival:** A packet arrives from the External Network at the system's Network Interface Card (NIC).
-2.  **Input Hook:** If the packet is destined for the machine itself, it enters the `input` chain of the `inet filter` table.
-3.  **Input Chain Processing:** The packet is evaluated against the rules sequentially:
-    * **Established/Related:** Checks if the packet belongs to an existing connection initiated by the server or is related (like ICMP errors). If yes, it's accepted immediately (stateful firewall core).
-    * **Invalid:** Checks for malformed or invalid connection tracking states. If yes, it's dropped.
-    * **Loopback:** Checks if it came from the local loopback interface (`lo`). If yes, it's accepted (necessary for internal communication).
-    * **ICMP:** Checks if it's an allowed ICMP type (like ping requests) and within the rate limit. If yes, accepted.
-    * **SSH (Port 22):** Checks if it's TCP traffic for port 22. If yes, accepted.
-    * **HTTP (Port 80):** Checks if it's TCP traffic for port 80. If yes, accepted.
-    * **HTTPS (Port 443):** Checks if it's TCP traffic for port 443. If yes, accepted.
-4.  **Default Policy:** If the packet doesn't match *any* of the `accept` rules above, it hits the chain's default policy, which is `DROP`. The packet is discarded silently.
-5.  **Forward Chain:** If the packet was *not* destined for the local machine but was being routed *through* it, it would hit the `forward` chain. In our example, this chain also has a `DROP` policy and no explicit `accept` rules, so such packets would be dropped.
-6.  **Output Chain:** Packets generated *by* local processes go through the `output` chain. Our example has a default `ACCEPT` policy here, allowing outgoing connections.
-
-This diagram visualizes how the `nftables` ruleset acts as a gatekeeper, specifically inspecting incoming traffic and dropping anything not explicitly allowed or part of an established conversation.
