@@ -2,82 +2,63 @@ here is a diagram representing the flow of *incoming* traffic through the exampl
 
 ```mermaid
 graph LR
-    subgraph "External Network"
-        direction LR
-        PacketIn("Packet Arrives")
+    subgraph ExtNet [External Network]
+        PacketIn[Packet Arrives]
     end
 
-    subgraph "System Network Interface (e.g., eth0)"
-        direction LR
-        NIC("NIC")
+    subgraph SysNIC [System Network Interface]
+        NIC[NIC]
     end
 
-    subgraph "Nftables Processing (inet table 'filter')"
+    subgraph Nftables [Nftables Processing - inet filter]
         direction TB
-        InputHook["Input Chain Hook"]
+        InputHook[Input Chain Hook]
 
-        subgraph "Input Chain (policy DROP)"
+        subgraph InputChain [Input Chain - policy DROP]
             direction TB
-            R1{"ct state<br/>established,related?"} -- Yes --> Accept1["ACCEPT / To Local Process"]
+            R1{"ct state<br/>established,related?"} -- Yes --> Acc1[ACCEPT<br/>To Local Process]
             R1 -- No --> R2{"ct state<br/>invalid?"}
-            R2 -- Yes --> Drop1["DROP"]
+            R2 -- Yes --> Drop1[DROP]
             R2 -- No --> R3{"iifname lo?"}
-            R3 -- Yes --> Accept2["ACCEPT / To Local Process"]
+            R3 -- Yes --> Acc2[ACCEPT<br/>To Local Process]
             R3 -- No --> R4{"Allowed ICMP<br/>(rate limited)?"}
-            R4 -- Yes --> Accept3["ACCEPT / To Local Process"]
+            R4 -- Yes --> Acc3[ACCEPT<br/>To Local Process]
             R4 -- No --> R5{"TCP dport 22<br/>(SSH)?"}
-            R5 -- Yes --> Accept4["ACCEPT / To SSH Service"]
+            R5 -- Yes --> Acc4[ACCEPT<br/>To SSH Service]
             R5 -- No --> R6{"TCP dport 80<br/>(HTTP)?"}
-            R6 -- Yes --> Accept5["ACCEPT / To Web Service"]
+            R6 -- Yes --> Acc5[ACCEPT<br/>To Web Service]
             R6 -- No --> R7{"TCP dport 443<br/>(HTTPS)?"}
-            R7 -- Yes --> Accept6["ACCEPT / To Web Service"]
-            R7 -- No --> PolicyDrop["Default Policy: DROP"]
+            R7 -- Yes --> Acc6[ACCEPT<br/>To Web Service]
+            R7 -- No --> PolDrop[Default Policy<br/>DROP]
         end
 
-        ForwardHook["Forward Chain Hook (policy DROP)"] -- "Not locally destined" --> FwdDrop["DROP (No rules match)"]
-        OutputHook["Output Chain Hook (policy ACCEPT)"] <-- LocalProcessGen["Packet from Local Process"]
+        ForwardHook[Forward Chain Hook - policy DROP] -- "Not locally destined" --> FwdDrop[DROP]
+        OutputHook[Output Chain Hook - policy ACCEPT] %% Node defined here
+        LocalGenPkt[Packet from Local Process] %% Node defined here (implicitly linked to LocalProc)
 
     end
 
-    subgraph "Local System"
+    subgraph LocalSys [Local System]
         direction TB
-        LocalProcess["Local Services<br/>(SSH, Web, etc.)"]
-        Loopback["Loopback 'lo'"]
+        LocalProc[Local Services<br/>SSH, Web, etc.]
+        LoInterface[Loopback 'lo']
     end
 
-
+    %% Connections
     PacketIn --> NIC
     NIC --> InputHook
-
-    %% Input Chain Flow
     InputHook --> R1
-
-    %% Connections for other chains (simplified)
     NIC -- "Routing Decision" --> ForwardHook
-    LocalProcess --> OutputHook
-
-    %% Connections back to local system
-    Accept1 --> LocalProcess
-    Accept2 --> Loopback --> LocalProcess
-    Accept3 --> LocalProcess
-    Accept4 --> LocalProcess
-    Accept5 --> LocalProcess
-    Accept6 --> LocalProcess
-
-    %% Output Chain (Simplified)
-    OutputHook --> NIC --> "External Network"
-
-
-    %% Styling (Optional, basic mermaid styling)
-    classDef default fill:#f9f,stroke:#333,stroke-width:2px;
-    classDef accept fill:#ccffcc,stroke:#333,stroke-width:2px;
-    classDef drop fill:#ffcccc,stroke:#333,stroke-width:2px;
-    classDef process fill:#lightblue,stroke:#333,stroke-width:2px;
-
-    class PacketIn,NIC,InputHook,ForwardHook,OutputHook default;
-    class LocalProcess,Loopback,LocalProcessGen process;
-    class Accept1,Accept2,Accept3,Accept4,Accept5,Accept6 accept;
-    class Drop1,PolicyDrop,FwdDrop drop;
+    LocalProc --> LocalGenPkt %% Connect LocalProc to the packet representation
+    LocalGenPkt --> OutputHook %% Changed this line: Standard arrow direction
+    Acc1 --> LocalProc
+    Acc2 --> LoInterface
+    LoInterface --> LocalProc
+    Acc3 --> LocalProc
+    Acc4 --> LocalProc
+    Acc5 --> LocalProc
+    Acc6 --> LocalProc
+    OutputHook --> NIC --> ExtNet
 ```
 
 **Explanation of the Diagram:**
