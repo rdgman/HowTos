@@ -58,12 +58,6 @@ graph LR
     Acc5 --> LocalProc
     Acc6 --> LocalProc
     OutputHook --> NIC --> ExtNet
-
-    %% Styling (Simplified)
-    classDef accept fill:#ccffcc,stroke:#333;
-    classDef drop fill:#ffcccc,stroke:#333;
-    class Acc1,Acc2,Acc3,Acc4,Acc5,Acc6 accept;
-    class Drop1,PolDrop,FwdDrop drop;
 ```
 
 **Explanation of the Diagram:**
