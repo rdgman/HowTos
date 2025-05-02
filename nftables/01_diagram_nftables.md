@@ -2,47 +2,47 @@ here is a diagram representing the flow of *incoming* traffic through the exampl
 
 ```mermaid
 graph LR
-    subgraph External Network
+    subgraph "External Network"
         direction LR
-        PacketIn[Packet Arrives]
+        PacketIn("Packet Arrives")
     end
 
-    subgraph System Network Interface (e.g., eth0)
+    subgraph "System Network Interface (e.g., eth0)"
         direction LR
-        NIC[NIC]
+        NIC("NIC")
     end
 
-    subgraph Nftables Processing (inet table 'filter')
+    subgraph "Nftables Processing (inet table 'filter')"
         direction TB
-        InputHook[Input Chain Hook]
+        InputHook["Input Chain Hook"]
 
-        subgraph Input Chain (policy DROP)
+        subgraph "Input Chain (policy DROP)"
             direction TB
-            R1{ct state<br/>established,related?} -- Yes --> Accept1[ACCEPT / To Local Process]
-            R1 -- No --> R2{ct state<br/>invalid?}
-            R2 -- Yes --> Drop1[DROP]
-            R2 -- No --> R3{iifname lo?}
-            R3 -- Yes --> Accept2[ACCEPT / To Local Process]
-            R3 -- No --> R4{Allowed ICMP<br/>(rate limited)?}
-            R4 -- Yes --> Accept3[ACCEPT / To Local Process]
-            R4 -- No --> R5{TCP dport 22<br/>(SSH)?}
-            R5 -- Yes --> Accept4[ACCEPT / To SSH Service]
-            R5 -- No --> R6{TCP dport 80<br/>(HTTP)?}
-            R6 -- Yes --> Accept5[ACCEPT / To Web Service]
-            R6 -- No --> R7{TCP dport 443<br/>(HTTPS)?}
-            R7 -- Yes --> Accept6[ACCEPT / To Web Service]
-            R7 -- No --> PolicyDrop[Default Policy: DROP]
+            R1{"ct state<br/>established,related?"} -- Yes --> Accept1["ACCEPT / To Local Process"]
+            R1 -- No --> R2{"ct state<br/>invalid?"}
+            R2 -- Yes --> Drop1["DROP"]
+            R2 -- No --> R3{"iifname lo?"}
+            R3 -- Yes --> Accept2["ACCEPT / To Local Process"]
+            R3 -- No --> R4{"Allowed ICMP<br/>(rate limited)?"}
+            R4 -- Yes --> Accept3["ACCEPT / To Local Process"]
+            R4 -- No --> R5{"TCP dport 22<br/>(SSH)?"}
+            R5 -- Yes --> Accept4["ACCEPT / To SSH Service"]
+            R5 -- No --> R6{"TCP dport 80<br/>(HTTP)?"}
+            R6 -- Yes --> Accept5["ACCEPT / To Web Service"]
+            R6 -- No --> R7{"TCP dport 443<br/>(HTTPS)?"}
+            R7 -- Yes --> Accept6["ACCEPT / To Web Service"]
+            R7 -- No --> PolicyDrop["Default Policy: DROP"]
         end
 
-        ForwardHook[Forward Chain Hook (policy DROP)] -- Not locally destined --> FwdDrop[DROP (No rules match)]
-        OutputHook[Output Chain Hook (policy ACCEPT)] <-- LocalProcessGen[Packet from Local Process]
+        ForwardHook["Forward Chain Hook (policy DROP)"] -- "Not locally destined" --> FwdDrop["DROP (No rules match)"]
+        OutputHook["Output Chain Hook (policy ACCEPT)"] <-- LocalProcessGen["Packet from Local Process"]
 
     end
 
-    subgraph Local System
+    subgraph "Local System"
         direction TB
-        LocalProcess[Local Services<br/>(SSH, Web, etc.)]
-        Loopback[Loopback 'lo']
+        LocalProcess["Local Services<br/>(SSH, Web, etc.)"]
+        Loopback["Loopback 'lo'"]
     end
 
 
@@ -53,7 +53,7 @@ graph LR
     InputHook --> R1
 
     %% Connections for other chains (simplified)
-    NIC -- Routing Decision --> ForwardHook
+    NIC -- "Routing Decision" --> ForwardHook
     LocalProcess --> OutputHook
 
     %% Connections back to local system
@@ -65,19 +65,19 @@ graph LR
     Accept6 --> LocalProcess
 
     %% Output Chain (Simplified)
-    OutputHook --> NIC --> External Network
+    OutputHook --> NIC --> "External Network"
 
 
-%% Styling (Optional, basic mermaid styling)
-classDef default fill:#f9f,stroke:#333,stroke-width:2px;
-classDef accept fill:#ccffcc,stroke:#333,stroke-width:2px;
-classDef drop fill:#ffcccc,stroke:#333,stroke-width:2px;
-classDef process fill:#lightblue,stroke:#333,stroke-width:2px;
+    %% Styling (Optional, basic mermaid styling)
+    classDef default fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef accept fill:#ccffcc,stroke:#333,stroke-width:2px;
+    classDef drop fill:#ffcccc,stroke:#333,stroke-width:2px;
+    classDef process fill:#lightblue,stroke:#333,stroke-width:2px;
 
-class PacketIn,NIC,InputHook,ForwardHook,OutputHook default;
-class LocalProcess,Loopback,LocalProcessGen process;
-class Accept1,Accept2,Accept3,Accept4,Accept5,Accept6 accept;
-class Drop1,PolicyDrop,FwdDrop drop;
+    class PacketIn,NIC,InputHook,ForwardHook,OutputHook default;
+    class LocalProcess,Loopback,LocalProcessGen process;
+    class Accept1,Accept2,Accept3,Accept4,Accept5,Accept6 accept;
+    class Drop1,PolicyDrop,FwdDrop drop;
 ```
 
 **Explanation of the Diagram:**
