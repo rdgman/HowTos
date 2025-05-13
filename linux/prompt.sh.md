@@ -1,3 +1,4 @@
+```bash
 #!/bin/bash
 
 set_prompt() {
@@ -9,3 +10,4 @@ set_prompt() {
 }
 
 PROMPT_COMMAND=set_prompt
+```
