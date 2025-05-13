@@ -1,4 +1,4 @@
-Okay, here's a summary of the provided text and a guide to using `nftables` based on it.
+A summary of the provided text and a guide to using `nftables` based on it.
 
 ## Summary of the Provided Text
 
