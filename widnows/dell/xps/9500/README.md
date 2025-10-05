@@ -1,4 +1,4 @@
-here’s a **fully formatted Markdown (`.md`) document** version of your **Dell XPS 15 9500 BIOS & Firmware Maintenance Guide**, now including:
+here’s a **fully formatted Markdown (`.md`) document** version for XPS 9500
 
 * The BIOS Flash Method (Option 2)
 * Your `fwupd-healthcheck.sh` script
