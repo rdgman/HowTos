@@ -240,10 +240,7 @@ Windows-only driver packages can be safely ignored on Pop!_OS.)*
 
 ```
 
----
+https://www.dell.com/support/product-details/en-uk/product/xps-15-9500-laptop/drivers
 
-Would you like me to render this as a **PDF** with proper title page and clean layout (using your name and system details in the header)?
 ```
 
-
-https://www.dell.com/support/product-details/en-uk/product/xps-15-9500-laptop/drivers
