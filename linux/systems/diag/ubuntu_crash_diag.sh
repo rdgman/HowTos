@@ -1,6 +1,40 @@
 #!/bin/bash
 
-# Create a timestamped log file
+# =============================================================================
+# 📄 Ubuntu Crash Diagnostic Script
+# =============================================================================
+# This script automates the process of diagnosing system crashes on Ubuntu.
+# It collects logs, scans for errors, checks system health indicators, and
+# saves everything to a timestamped log file for review or sharing.
+#
+# 🧰 Features:
+# - Retrieves logs from the previous boot using journalctl
+# - Lists crash reports from /var/crash
+# - Scans system logs (syslog, kern.log, auth.log) for errors
+# - Displays GUI-related errors from .xsession-errors
+# - Lists recent boot sessions
+# - Searches for kernel panics, segmentation faults, and OOM killer events
+# - Optionally checks CPU temperature (if lm-sensors is installed)
+# - Saves all output to a timestamped log file
+#
+# 📦 Requirements:
+# - Ubuntu or Debian-based system
+# - Bash shell
+# - Optional: lm-sensors for temperature checks
+#   Install with: sudo apt install lm-sensors
+#
+# 🚀 Usage:
+# 1. Save this script as ubuntu_crash_diag.sh
+# 2. Make it executable: chmod +x ubuntu_crash_diag.sh
+# 3. Run it: ./ubuntu_crash_diag.sh
+#
+# 🔐 Security Notes:
+# - Reads system logs and user-specific files
+# - Does not modify system state
+# - For full access, consider running with sudo
+#
+# =============================================================================
+
 LOGFILE="ubuntu_crash_diag_$(date +%Y%m%d_%H%M%S).log"
 exec > >(tee -a "$LOGFILE") 2>&1
 
